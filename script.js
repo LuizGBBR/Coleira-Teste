@@ -1,17 +1,26 @@
 let h2 = document.querySelector('h2');
 
+var latitude;
+var longitude;
+var id;
+
+var formBtn = document.getElementById('frmButton').elements;
+    formBtn['enviarID'].onclick = function () {
+    id=formBtn['id'].value;
+        enviarLoc();
+    }
+
+
+
 var map;
 
 function success(pos){
     console.log(pos.coords.latitude, pos.coords.longitude)
     h2.textContent = `Latitude:${pos.coords.latitude}, Longitude:${pos.coords.longitude}`;
 
-//    if (map === undefined) {
-//      map = L.map('mapid').setView([pos.coords.latitude, pos.coords.longitude], 13);
-//    } else {
-//        map.remove();
-//        map = L.map('mapid').setView([pos.coords.latitude, pos.coords.longitude], 13);
-//    }
+latitude= pos.coords.latitude;
+longitude= pos.coords.longitude;
+
     map = L.map('mapid').setView([pos.coords.latitude, pos.coords.longitude], 13); //se for usar a de cima apagar essa
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -33,3 +42,23 @@ var watchID = navigator.geolocation.getCurrentPosition(success, error, {
     timeout: 5000
 
 });
+
+async function enviarLoc(){
+    const response = await fetch("https://petland-bxg3nq4da-camilams27.vercel.app/pet/coleira", {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: `{
+           "id": ${id},
+           "latitude": ${latitude},
+           "longitude": ${longitude}
+            }`,
+        });
+        
+        response.json().then(data => {
+          console.log(data);
+        });
+
+}
